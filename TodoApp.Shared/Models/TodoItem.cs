@@ -9,11 +9,16 @@ public class TodoItem
     public string Description { get; set; }
 
     public DateTime CreatedDate { get; set; } = DateTime.Now;
-    public DateTime UpdatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
     public TodoItemStatus Status { get; set; }
 
     public Category Category { get; set; }
     public int CategoryId { get; set; }
+
+    private TodoItem()
+    {
+        
+    }
 
     public TodoItem(TodoItemDto dto)
     {

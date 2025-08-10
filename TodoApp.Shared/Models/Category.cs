@@ -2,21 +2,28 @@
 
 namespace TodoApp.Shared.Models;
 
-public record CategoryDto(int Id, string Name, bool IsActive=true);
+public record CategoryDto(int Id, string Name, bool IsActive=true, string Description="");
 
 public class Category
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public string Description { get; set; }
     public bool IsActive { get; set; } = true;
 
     public List<TodoItem> Items { get; set; }
+
+    private Category()
+    {
+        
+    }
 
     public Category(CategoryDto dto)
     {
         Id = dto.Id;
         Name = dto.Name;
         IsActive = dto.IsActive;
+        Description = dto.Description;
 
     }
 
@@ -24,7 +31,7 @@ public class Category
     {
         Name = dto.Name;
         IsActive = dto.IsActive;
-
+        Description += dto.Description;
     }
 
     public CategoryReadModel ToReadModel()
