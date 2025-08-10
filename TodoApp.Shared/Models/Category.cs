@@ -2,16 +2,18 @@
 
 namespace TodoApp.Shared.Models;
 
-public record CategoryDto(int Id, string Name, bool IsActive=true, string Description="");
+public record CategoryDto(string Name, bool IsActive=true, string Description="");
 
 public class Category
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public bool IsActive { get; set; } = true;
+    private readonly List<string> _prohobitedCategores = ["sex", "not", "class"];
 
-    public List<TodoItem> Items { get; set; }
+    public int Id { get; private set; }
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+    public bool IsActive { get; private set; } = true;
+
+    public List<TodoItem> Items { get; private set; }
 
     private Category()
     {
@@ -20,7 +22,11 @@ public class Category
 
     public Category(CategoryDto dto)
     {
-        Id = dto.Id;
+        if (string.IsNullOrEmpty(dto.Name) || _prohobitedCategores.IndexOf(dto.Name) >= 0)
+        {
+            throw new ArgumentException("Cateory name is invalid");
+        }
+        
         Name = dto.Name;
         IsActive = dto.IsActive;
         Description = dto.Description;
@@ -29,9 +35,14 @@ public class Category
 
     public void Update(CategoryDto dto)
     {
+        if (string.IsNullOrEmpty(dto.Name) || _prohobitedCategores.IndexOf(dto.Name) >= 0)
+        {
+            throw new ArgumentException("Cateory name is invalid");
+        }
+
         Name = dto.Name;
         IsActive = dto.IsActive;
-        Description += dto.Description;
+        Description = dto.Description;
     }
 
     public CategoryReadModel ToReadModel()

@@ -23,7 +23,9 @@ namespace TodoApp.Wpf
         public MainWindow()
         {
             InitializeComponent();
-            _categoryService = new CategoryService();
+
+           
+            //_categoryService = new CategoryService();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -36,11 +38,11 @@ namespace TodoApp.Wpf
         {
             var all = gridCtaegories.ItemsSource.Cast<CategoryReadModel>().ToList();
 
-            var newCate = _categoryService.Add(new CategoryDto(all.Max(e=>e.Id)+1, txtCategory.Text, false));
+            //var newCate = _categoryService.Add(new CategoryDto(all.Max(e=>e.Id)+1, txtCategory.Text, false));
 
             
 
-            all.Add(newCate);
+            //all.Add(newCate);
             gridCtaegories.ItemsSource = all;
         }
     }

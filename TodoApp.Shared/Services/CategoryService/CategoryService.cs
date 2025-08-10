@@ -1,48 +1,59 @@
-﻿using TodoApp.Shared.Models;
+﻿using TodoApp.Shared.Data;
+using TodoApp.Shared.Models;
 
 namespace TodoApp.Shared.Services.CategoryService;
 
 public interface ICategoryService
 {
-    List<CategoryReadModel> GetCategories();
-    CategoryReadModel? GetCategory(int id);
-    CategoryReadModel Add(CategoryDto dto);
-    CategoryReadModel? Update(CategoryDto dto);
+    List<Category> GetCategories();
+    Category? GetCategory(int id);
+    Category Add(CategoryDto dto);
+    Category? Update(int id, CategoryDto dto);
 }
 
 public partial class CategoryService : ICategoryService
 {
-    public List<CategoryReadModel> GetCategories()
-    {
+    private readonly AppDbContext _context;
+   
 
-      
-        return new List<Category>()
-        {
-            new(new(1, "Personal")),
-            new Category(new CategoryDto(2, "Work")),
-            new Category(new CategoryDto(3, "Other"))
-        }.Select(c=>c.ToReadModel()).ToList();
+    public CategoryService(AppDbContext context)
+    {
+        _context = context;
     }
 
-    public CategoryReadModel? GetCategory(int id)
+    public List<Category> GetCategories()
     {
-       return GetCategories()
+
+
+        return _context.Categories.ToList();
+    }
+
+    public Category? GetCategory(int id)
+    {
+       return _context.Categories
             .FirstOrDefault(c=>c.Id==id);
     }
 
-    public CategoryReadModel Add(CategoryDto dto)
+    public Category Add(CategoryDto dto)
     {
-       
-        // database logic
-        return new Category(dto).ToReadModel();
+        var category = new Category(dto);
+        
+        var savedCategory = _context.Categories.Add(category);
+        _context.SaveChanges();
+
+        return savedCategory.Entity;
+
+        
     }
 
-    public CategoryReadModel? Update(CategoryDto dto)
+    public Category? Update(int id, CategoryDto dto)
     {
-        var current = GetCategories()
-        .FirstOrDefault(c=>c.Id==dto.Id);
+        var current = _context.Categories
+        .FirstOrDefault(c=>c.Id==id);
+        
+        current?.Update(dto);
 
-        //current?.Update(dto);
+        _context.SaveChanges();
 
         return current;
     }

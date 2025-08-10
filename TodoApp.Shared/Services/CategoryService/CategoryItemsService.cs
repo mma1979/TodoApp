@@ -1,4 +1,5 @@
-﻿using TodoApp.Shared.Models;
+﻿using TodoApp.Shared.Data;
+using TodoApp.Shared.Models;
 
 namespace TodoApp.Shared.Services.CategoryService;
 
@@ -9,51 +10,56 @@ public interface ITodoListService
     List<TodoItem> GetAll(int categoryId);
     TodoItem? GetById(int category, int id);
     TodoItem Add(TodoItemDto item);
-    TodoItem Update(TodoItemDto item);
-    void UpdateStat(int id, TodoItemStatus status);
+    TodoItem Update(int id, TodoItemDto item);
+    bool UpdateStat(int id, TodoItemStatus status);
 }
 public partial class CategoryService: ITodoListService
 {
+    
     public List<TodoItem> GetAll()
     {
-        return new List<TodoItem>
-       {
-           new TodoItem(new TodoItemDto(1, "Item 1", "", 1)),
-           new TodoItem(new TodoItemDto(2, "Item 2", "", 1)),
-           new TodoItem(new TodoItemDto(3, "Item 3", "", 2)),
-           new TodoItem(new TodoItemDto(4, "Item 4", "", 2)),
-           new TodoItem(new TodoItemDto(5, "Item 5", "", 3)),
-           new TodoItem(new TodoItemDto(6, "Item 6", "", 3))
-       };
+        return _context.TodoItems.ToList();
     }
 
     public List<TodoItem> GetAll(int categoryId)
     {
-        return GetAll().Where(c=>c.CategoryId == categoryId).ToList();
+        return _context.TodoItems
+            .Where(c=>c.CategoryId == categoryId).ToList();
     }
 
-    public TodoItem? GetById(int category, int id)
+    public TodoItem? GetById(int categoryId, int id)
     {
-        return GetAll(category).FirstOrDefault(i=>i.Id==id);
+         return _context.TodoItems
+            .FirstOrDefault(c => c.CategoryId == categoryId && c.Id == id);
     }
 
     public TodoItem Add(TodoItemDto item)
     {
-        return new TodoItem(item);
+        var newTodo = new TodoItem(item);
+        var savedItem = _context.TodoItems.Add(newTodo);
+        _context.SaveChanges();
+        return savedItem.Entity;
     }
 
-    public TodoItem Update(TodoItemDto item)
+    public TodoItem Update(int id, TodoItemDto item)
     {
-        var current = GetById(item.CategoryId, item.Id);
+        var current = _context.TodoItems
+            .FirstOrDefault(e=>e.Id == id);
         current?.Update(item);
+
+        _context.SaveChanges();
 
         return current;
     }
 
-    public void UpdateStat(int id, TodoItemStatus status)
+    public bool UpdateStat(int id, TodoItemStatus status)
     {
 
-        var current = GetAll().FirstOrDefault(i=>i.Id==id);
+        var current = _context.TodoItems
+            .FirstOrDefault(e => e.Id == id);
         current?.ChangeStatus(status);
+
+
+        return _context.SaveChanges() > 0;
     }
 }
