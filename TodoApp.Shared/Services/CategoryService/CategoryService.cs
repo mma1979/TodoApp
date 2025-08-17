@@ -1,4 +1,5 @@
-﻿using TodoApp.Shared.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TodoApp.Shared.Data;
 using TodoApp.Shared.Models;
 
 namespace TodoApp.Shared.Services.CategoryService;
@@ -9,6 +10,7 @@ public interface ICategoryService
     Category? GetCategory(int id);
     Category Add(CategoryDto dto);
     Category? Update(int id, CategoryDto dto);
+    Category? Delete(int id);
 }
 
 public partial class CategoryService : ICategoryService
@@ -25,7 +27,9 @@ public partial class CategoryService : ICategoryService
     {
 
 
-        return _context.Categories.ToList();
+        return _context.Categories
+            .Include(c=>c.Items)
+            .ToList();
     }
 
     public Category? GetCategory(int id)
@@ -56,5 +60,17 @@ public partial class CategoryService : ICategoryService
         _context.SaveChanges();
 
         return current;
+    }
+
+    public Category? Delete(int id)
+    {
+        var category = _context.Categories.FirstOrDefault(c=>c.Id==id);
+        if (category != null)
+        {
+            _context.Categories.Remove(category);
+            _context.SaveChanges();
+        }
+        
+        return category;
     }
 }
